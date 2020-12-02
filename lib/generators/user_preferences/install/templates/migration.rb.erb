@@ -1,4 +1,4 @@
-class CreatePreferences < (ActiveRecord::VERSION::MAJOR >= 5 ? ActiveRecord::Migration[4.2] : ActiveRecord::Migration)
+class CreatePreferences < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version.to_s %>]
   def self.up
     create_table :preferences do |t|
       t.references :preferable, polymorphic: true, null:false
@@ -12,7 +12,6 @@ class CreatePreferences < (ActiveRecord::VERSION::MAJOR >= 5 ? ActiveRecord::Mig
     add_index :preferences, [:preferable_id, :preferable_type, :category], name: 'index_preferences_on_reference_and_category'
     add_index :preferences, [:category, :name, :value]
   end
-
 
   def self.down
     drop_table :preferences

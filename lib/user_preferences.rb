@@ -10,26 +10,18 @@ module UserPreferences
   autoload :HasPreferences
   autoload :Preference
   autoload :PreferenceDefinition
+  autoload :ModelPreferences
   autoload :VERSION
 
   class << self
-    def [](category, name)
-      unless (pref = definitions[category].try(:[], name)).nil?
-        PreferenceDefinition.new(pref, category, name)
-      end
-    end
+    delegate :[], :defaults, :yml_path, :definitions, to: :default_type 
+    
+    private
 
-    def defaults(category = nil)
-      @_defaults ||= Defaults.new(definitions)
-      @_defaults.get(category)
-    end
-
-    def yml_path
-      Rails.root.join('config', 'user_preferences.yml') if defined?(Rails)
-    end
-
-    def definitions
-      @_definitions ||= YAML.load_file(yml_path).with_indifferent_access
+    # For backwards compatibility when UserPreferences didn't support polymorphism
+    def default_type
+      Rails.logger.info 'DEPRECATED: calling UserPreferences directly is deprecated. Move your calls to the model. i.e. User.preferences' if defined?(Rails)
+      User.preferences
     end
   end
 end

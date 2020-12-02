@@ -1,0 +1,18 @@
+class UpgradeUserPreferences < ActiveRecord::Migration[<%= ActiveRecord::Migration.current_version.to_s %>]
+  disable_ddl_transaction!
+
+  def self.up
+    add_column :preferences, :preferable_id, :integer, null: false
+    add_column :preferences, :preferable_type, :string, null: false
+
+    UserPreferences::Preference.update_all("preferable_type='User', preferable_id=user_id")
+
+    add_index :preferences, :preferable_id, algorithm: :concurrently
+    add_index :preferences, [:preferable_id, :preferable_type, :category], algorithm: :concurrently, name: 'index_preferences_on_reference_and_category'
+  end
+
+  def self.down
+    remove_column :preferences, :preferable_id
+    remove_column :preferences, :preferable_type
+  end
+end

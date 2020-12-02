@@ -35,17 +35,31 @@ Finally, run the database migrations:
 $ rake db:migrate
 ```
 
+## Upgrading from 1.0.x to 1.1
+```sh
+$ rails g user_preferences:upgrade
+```
+
+This will copy across a migration to convert your prefs to allow polymorphism, giving you the ability to have independent preferences on multiple models.
+
+Finally, run the database migrations:
+
+```sh
+$ rake db:migrate
+```
+
+
 ## Add preferences to your model
 
-Assuming you have a model called `User`, you can associate it with preferences as
-follows:
+Associate your models with preferences as follows:
 
 ```ruby
 class User < ActiveRecord::Base
+  has_preferences # preference definitions and defaults are stored in config/user_preferences.yml
+end
 
-  has_preferences
-
-  # the rest of your code ...
+class Admin < ActiveRecord::Base
+  has_preferences # preference definitions and defaults are stored in config/admin_preferences.yml
 end
 ```
 
@@ -55,7 +69,7 @@ below.
 
 ## Defining preferences
 
-Your preferences, along with their default values, are defined in ``config/user_preferences.yml``. You define each of your
+Your preferences, along with their default values, are defined in ``config/#{class_name}_preferences.yml``. You define each of your
 preferences within a category. This example definition for a binary preference implies that users receive emails notifications by default but not newsletters:
 ```yaml
 emails:
@@ -130,10 +144,11 @@ Note: this _will_ include users who have not overridden the default value if the
 ## Other useful stuff
 
 ### Single preference definition
-* Get your preference definition (as per your .yml) as a hash: ``UserPreferences.definitions``
+* Get your preference definition (as per your .yml) as a hash: ``User.definitions``
 * Get the definition for a single preference:
 ```ruby
-  preference = UserPreferences[:emails, :notifications]
+
+  preference = User.preferences[:emails, :notifications]
   preference.default # => 'instant'
   preference.binary? # => false
   preference.permitted_values # => ['off', 'instant', 'daily', 'weekly']

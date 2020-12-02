@@ -38,7 +38,7 @@ module UserPreferences
     end
 
     def saved_preferences
-      @_saved_preferences ||= @scope.select([:id, :category, :name, :value, :user_id])
+      @_saved_preferences ||= @scope.select([:id, :category, :name, :value, :preferable_type, :preferable_id])
     end
 
     def find_or_init_preference(name)

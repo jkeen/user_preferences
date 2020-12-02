@@ -3,6 +3,7 @@ require 'active_record'
 require 'active_record/connection_adapters/sqlite3_adapter'
 
 RSpec.configure do |config|
+  config.example_status_persistence_file_path = ".rspec_persistence"
   $stdout = StringIO.new # silence migrations
   ActiveRecord::Base.establish_connection(adapter: 'sqlite3', database: ':memory:')
   if ActiveRecord::VERSION::MAJOR >= 5
@@ -23,10 +24,14 @@ RSpec.configure do |config|
 end
 
 def stub_yml
-  fixture = File.expand_path("../fixtures/user_preferences.yml", __FILE__)
-  UserPreferences.stub(:yml_path).and_return(fixture)
+  UserPreferences::ModelPreferences.stub(:config_path).and_return(File.expand_path("./spec/fixtures"))
 end
 
 class User < ActiveRecord::Base
   include UserPreferences::HasPreferences
 end
+
+class Admin < ActiveRecord::Base
+  include UserPreferences::HasPreferences
+end
+
